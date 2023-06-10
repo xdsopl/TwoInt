@@ -169,22 +169,21 @@ int main()
 		for (int i = 0; i < 65536; ++i)
 			for (int j = 0; j < 65536; ++j)
 				assert((i >= j) == (u16(i) >= u16(j)));
+	}
+	if (0) {
+		typedef TwoInt<uint8_t> u16;
 		for (int i = 0; i < 65536; ++i) {
-			u16 a(i);
 			for (int j = 0; j < 65536; ++j) {
-				u16 b(j);
-				u16 c = a + b;
-				uint16_t d = i + j;
-				assert(d == *reinterpret_cast<uint16_t *>(&c));
+				uint16_t a = i + j;
+				u16 b = u16(i) + u16(j);
+				assert(a == *reinterpret_cast<uint16_t *>(&b));
 			}
 		}
 		for (int i = 0; i < 65536; ++i) {
-			u16 a(i);
 			for (int j = 0; j < 65536; ++j) {
-				u16 b(j);
-				u16 c = a - b;
-				uint16_t d = i - j;
-				assert(d == *reinterpret_cast<uint16_t *>(&c));
+				uint16_t a = i - j;
+				u16 b = u16(i) - u16(j);
+				assert(a == *reinterpret_cast<uint16_t *>(&b));
 			}
 		}
 	}
