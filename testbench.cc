@@ -151,6 +151,21 @@ int main()
 {
 	if (0) {
 		typedef TwoInt<uint8_t> u16;
+		uint16_t a = 0;
+		u16 b(0);
+		for (int i = 0; i < (1 << 20); ++i) {
+			++a;
+			++b;
+			assert(a == *reinterpret_cast<uint16_t *>(&b));
+		}
+		for (int i = 0; i < (1 << 20); ++i) {
+			--a;
+			--b;
+			assert(a == *reinterpret_cast<uint16_t *>(&b));
+		}
+	}
+	if (0) {
+		typedef TwoInt<uint8_t> u16;
 		for (int i = 0; i < 65536; ++i)
 			for (int j = 0; j < 65536; ++j)
 				assert((i == j) == (u16(i) == u16(j)));
