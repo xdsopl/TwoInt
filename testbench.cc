@@ -45,6 +45,10 @@ struct TwoInt
 	{
 		return *this = *this - a;
 	}
+	TwoInt<TYPE> operator*=(TwoInt<TYPE> a)
+	{
+		return *this = TwoIntTruncMul(*this, a);
+	}
 	TwoInt<TYPE> operator++()
 	{
 		if (!++lower)
@@ -189,6 +193,32 @@ TwoInt<TYPE> operator-(TwoInt<TYPE> a, TwoInt<TYPE> b)
 	if (tmp.lower > a.lower)
 		--tmp.upper;
 	return tmp;
+}
+
+template <typename TYPE>
+TwoInt<TYPE> TwoIntTruncMul(TwoInt<TYPE> a, TwoInt<TYPE> b)
+{
+	TwoInt<TYPE> middle = a.lower * b.upper + a.upper * b.lower;
+	int h = sizeof(TYPE) * 8;
+	return a.lower * b.lower + (middle << h);
+}
+
+TwoInt<uint8_t> TwoIntTruncMul(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
+{
+	uint16_t tmp = *reinterpret_cast<uint16_t *>(&a) * *reinterpret_cast<uint16_t *>(&b);
+	return *reinterpret_cast<TwoInt<uint8_t> *>(&tmp);
+}
+
+TwoInt<uint16_t> TwoIntTruncMul(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
+{
+	uint32_t tmp = *reinterpret_cast<uint32_t *>(&a) * *reinterpret_cast<uint32_t *>(&b);
+	return *reinterpret_cast<TwoInt<uint16_t> *>(&tmp);
+}
+
+TwoInt<uint32_t> TwoIntTruncMul(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
+{
+	uint64_t tmp = *reinterpret_cast<uint64_t *>(&a) * *reinterpret_cast<uint64_t *>(&b);
+	return *reinterpret_cast<TwoInt<uint32_t> *>(&tmp);
 }
 
 template <typename TYPE>
@@ -341,6 +371,18 @@ int main()
 			for (int j = 0; j < 65536; ++j) {
 				uint16_t a = i - j;
 				u16 b = u16(i) - u16(j);
+				assert(a == *reinterpret_cast<uint16_t *>(&b));
+			}
+		}
+	}
+	if (0) {
+		typedef TwoInt<uint8_t> u16;
+		for (int i = 0; i < 65536; ++i) {
+			uint16_t a = i;
+			u16 b = u16(i);
+			for (int j = 0; j < 65536; ++j) {
+				a *= j;
+				b *= u16(j);
 				assert(a == *reinterpret_cast<uint16_t *>(&b));
 			}
 		}
