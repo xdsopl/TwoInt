@@ -88,7 +88,7 @@ bool operator>=(TwoInt<TYPE> a, TwoInt<TYPE> b)
 }
 
 template <typename TYPE>
-struct TwoInt<TYPE> operator+(TwoInt<TYPE> a, TwoInt<TYPE> b)
+TwoInt<TYPE> operator+(TwoInt<TYPE> a, TwoInt<TYPE> b)
 {
 	TwoInt<TYPE> tmp;
 	tmp.lower = a.lower + b.lower;
@@ -99,7 +99,7 @@ struct TwoInt<TYPE> operator+(TwoInt<TYPE> a, TwoInt<TYPE> b)
 }
 
 template <typename TYPE>
-struct TwoInt<TYPE> operator-(TwoInt<TYPE> a, TwoInt<TYPE> b)
+TwoInt<TYPE> operator-(TwoInt<TYPE> a, TwoInt<TYPE> b)
 {
 	TwoInt<TYPE> tmp;
 	tmp.lower = a.lower - b.lower;
