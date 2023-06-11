@@ -47,7 +47,7 @@ struct TwoInt
 	}
 	TwoInt<TYPE> operator*=(TwoInt<TYPE> a)
 	{
-		return *this = TwoIntTruncMul(*this, a);
+		return *this = *this * a;
 	}
 	TwoInt<TYPE> operator++()
 	{
@@ -196,63 +196,63 @@ TwoInt<TYPE> operator-(TwoInt<TYPE> a, TwoInt<TYPE> b)
 }
 
 template <typename TYPE>
-TwoInt<TYPE> TwoIntTruncMul(TwoInt<TYPE> a, TwoInt<TYPE> b)
+TwoInt<TYPE> operator*(TwoInt<TYPE> a, TwoInt<TYPE> b)
 {
-	TwoInt<TYPE> middle = a.lower * b.upper + a.upper * b.lower;
+	TwoInt<TYPE> middle = mul(a.lower, b.upper) + mul(a.upper, b.lower);
 	int h = sizeof(TYPE) * 8;
-	return a.lower * b.lower + (middle << h);
+	return mul(a.lower, b.lower) + (middle << h);
 }
 
-TwoInt<uint8_t> TwoIntTruncMul(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
+TwoInt<uint8_t> operator*(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
 	uint16_t tmp = *reinterpret_cast<uint16_t *>(&a) * *reinterpret_cast<uint16_t *>(&b);
 	return *reinterpret_cast<TwoInt<uint8_t> *>(&tmp);
 }
 
-TwoInt<uint16_t> TwoIntTruncMul(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
+TwoInt<uint16_t> operator*(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 {
 	uint32_t tmp = *reinterpret_cast<uint32_t *>(&a) * *reinterpret_cast<uint32_t *>(&b);
 	return *reinterpret_cast<TwoInt<uint16_t> *>(&tmp);
 }
 
-TwoInt<uint32_t> TwoIntTruncMul(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
+TwoInt<uint32_t> operator*(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 {
 	uint64_t tmp = *reinterpret_cast<uint64_t *>(&a) * *reinterpret_cast<uint64_t *>(&b);
 	return *reinterpret_cast<TwoInt<uint32_t> *>(&tmp);
 }
 
 template <typename TYPE>
-TwoInt<TwoInt<TYPE>> operator*(TwoInt<TYPE> a, TwoInt<TYPE> b)
+TwoInt<TwoInt<TYPE>> mul(TwoInt<TYPE> a, TwoInt<TYPE> b)
 {
 	TwoInt<TYPE> middle;
-	middle = a.lower * b.upper + a.upper * b.lower;
+	middle = mul(a.lower, b.upper) + mul(a.upper, b.lower);
 	int h = sizeof(TYPE) * 8;
 	TwoInt<TYPE> lower = middle << h;
 	TwoInt<TYPE> upper = middle >> h;
 	TwoInt<TwoInt<TYPE>> tmp;
-	tmp.lower = a.lower * b.lower + lower;
-	tmp.upper = a.upper * b.upper + upper;
+	tmp.lower = mul(a.lower, b.lower) + lower;
+	tmp.upper = mul(a.upper, b.upper) + upper;
 	if (tmp.lower < lower)
 		++tmp.upper;
 	return tmp;
 }
 
 template <>
-TwoInt<TwoInt<uint8_t>> operator*(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
+TwoInt<TwoInt<uint8_t>> mul(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
 	uint32_t tmp = uint32_t(*reinterpret_cast<uint16_t *>(&a)) * uint32_t(*reinterpret_cast<uint16_t *>(&b));
 	return *reinterpret_cast<TwoInt<TwoInt<uint8_t>> *>(&tmp);
 }
 
 template <>
-TwoInt<TwoInt<uint16_t>> operator*(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
+TwoInt<TwoInt<uint16_t>> mul(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 {
 	uint64_t tmp = uint64_t(*reinterpret_cast<uint32_t *>(&a)) * uint64_t(*reinterpret_cast<uint32_t *>(&b));
 	return *reinterpret_cast<TwoInt<TwoInt<uint16_t>> *>(&tmp);
 }
 
 template <>
-TwoInt<TwoInt<uint32_t>> operator*(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
+TwoInt<TwoInt<uint32_t>> mul(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 {
 	uint64_t middle = uint64_t(a.lower) * uint64_t(b.upper) + uint64_t(a.upper) * uint64_t(b.lower);
 	uint64_t lower = uint64_t(a.lower) * uint64_t(b.lower) + (middle << 32);
@@ -378,11 +378,9 @@ int main()
 	if (0) {
 		typedef TwoInt<uint8_t> u16;
 		for (int i = 0; i < 65536; ++i) {
-			uint16_t a = i;
-			u16 b = u16(i);
 			for (int j = 0; j < 65536; ++j) {
-				a *= j;
-				b *= u16(j);
+				uint16_t a = i * j;
+				u16 b = u16(i) * u16(j);
 				assert(a == *reinterpret_cast<uint16_t *>(&b));
 			}
 		}
@@ -393,7 +391,7 @@ int main()
 		for (int i = 0; i < 65536; ++i) {
 			for (int j = 0; j < 65536; ++j) {
 				uint32_t a = i * j;
-				u32 b = u16(i) * u16(j);
+				u32 b = mul(u16(i), u16(j));
 				assert(a == *reinterpret_cast<uint32_t *>(&b));
 			}
 		}
@@ -404,16 +402,17 @@ int main()
 		for (int i = 0; i < (1 << 17); ++i) {
 			for (int j = 0; j < (1 << 17); ++j) {
 				uint64_t a = uint64_t(i) * uint64_t(j);
-				u64 b = u32(i) * u32(j);
+				u64 b = mul(u32(i), u32(j));
 				assert(a == *reinterpret_cast<uint64_t *>(&b));
 			}
 		}
 	}
 	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(0), b(1);
-	TwoInt<TwoInt<uint8_t>> a(0), b(1);
+	TwoInt<TwoInt<uint8_t>> a(2), b(3);
 	std::cout << "sizeof(a) = " << sizeof(a) << std::endl;
 	std::cout << (a + b) << " = " << a << " + " << b << std::endl;
 	std::cout << (a - b) << " = " << a << " - " << b << std::endl;
+	std::cout << (a * b) << " = " << a << " * " << b << std::endl;
 	return 0;
 }
 
