@@ -4,6 +4,9 @@ Unsigned integer doubler
 Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 */
 
+#include <random>
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <iomanip>
 
@@ -12,7 +15,7 @@ struct TwoInt
 {
 	TYPE lower, upper;
 	TwoInt() : lower(0), upper(0) {}
-	TwoInt(int value) : lower(value), upper(sizeof(int) <= sizeof(TYPE) ? 0 : value >> (sizeof(TYPE) * 8)) {}
+	TwoInt(uint64_t value) : lower(value), upper(8 <= sizeof(TYPE) ? 0 : value >> (sizeof(TYPE) * 8)) {}
 	explicit operator bool () const
 	{
 		return lower || upper;
@@ -407,8 +410,49 @@ int main()
 			}
 		}
 	}
+	if (0) {
+		typedef TwoInt<uint16_t> u32;
+		std::random_device rd;
+		std::default_random_engine engine(rd());
+		std::uniform_int_distribution<uint32_t> distribution(0, std::numeric_limits<uint32_t>::max());
+		auto rand = std::bind(distribution, engine);
+		for (int i = 0; i < (1 << 20); ++i) {
+			uint32_t x = rand(), y = rand();
+			uint32_t a = x * y;
+			u32 b = u32(x) * u32(y);
+			assert(a == *reinterpret_cast<uint32_t *>(&b));
+		}
+	}
+	if (0) {
+		typedef TwoInt<uint16_t> u32;
+		typedef TwoInt<u32> u64;
+		std::random_device rd;
+		std::default_random_engine engine(rd());
+		std::uniform_int_distribution<uint32_t> distribution(0, std::numeric_limits<uint32_t>::max());
+		auto rand = std::bind(distribution, engine);
+		for (int i = 0; i < (1 << 20); ++i) {
+			uint64_t x = rand(), y = rand();
+			uint64_t a = x * y;
+			u64 b = mul(u32(x), u32(y));
+			assert(a == *reinterpret_cast<uint64_t *>(&b));
+		}
+	}
+	if (0) {
+		typedef TwoInt<uint32_t> u64;
+		std::random_device rd;
+		std::default_random_engine engine(rd());
+		std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
+		auto rand = std::bind(distribution, engine);
+		for (int i = 0; i < (1 << 20); ++i) {
+			uint64_t x = rand(), y = rand();
+			uint64_t a = x * y;
+			u64 b = u64(x) * u64(y);
+			assert(a == *reinterpret_cast<uint64_t *>(&b));
+		}
+	}
 	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(0), b(1);
-	TwoInt<TwoInt<uint8_t>> a(2), b(3);
+	//TwoInt<TwoInt<uint8_t>> a(2), b(3);
+	TwoInt<uint32_t> a(2), b(3);
 	std::cout << "sizeof(a) = " << sizeof(a) << std::endl;
 	std::cout << (a + b) << " = " << a << " + " << b << std::endl;
 	std::cout << (a - b) << " = " << a << " - " << b << std::endl;
