@@ -5,6 +5,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 */
 
 #include <random>
+#include <cassert>
 #include <algorithm>
 #include <functional>
 #include <iostream>
@@ -282,24 +283,6 @@ template <typename TYPE>
 TwoInt<TYPE> operator/(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 {
 	assert(divisor);
-#if 0
-	TwoInt<TYPE> quotient, bit(1);
-	while (divisor <= dividend) {
-		divisor <<= 1;
-		bit <<= 1;
-	}
-	divisor >>= 1;
-	bit >>= 1;
-	while (bit) {
-		if (dividend >= divisor) {
-			dividend -= divisor;
-			quotient |= bit;
-		}
-		divisor >>= 1;
-		bit >>= 1;
-	}
-#endif
-#if 1
 	TwoInt<TYPE> quotient, one(1);
 	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
 		if ((dividend >> shift) >= divisor) {
@@ -307,22 +290,9 @@ TwoInt<TYPE> operator/(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 			quotient |= one << shift;
 		}
 	}
-#endif
-#if 0
-	TwoInt<TYPE> quotient, remainder, one(1);
-	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
-		remainder <<= 1;
-		remainder |= (dividend >> shift) & one;
-		if (remainder >= divisor) {
-			remainder -= divisor;
-			quotient |= one << shift;
-		}
-	}
-#endif
 	return quotient;
 }
 
-#if 0
 TwoInt<uint8_t> operator/(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
 	uint16_t tmp = *reinterpret_cast<uint16_t *>(&a) / *reinterpret_cast<uint16_t *>(&b);
@@ -340,7 +310,6 @@ TwoInt<uint32_t> operator/(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 	uint64_t tmp = *reinterpret_cast<uint64_t *>(&a) / *reinterpret_cast<uint64_t *>(&b);
 	return *reinterpret_cast<TwoInt<uint32_t> *>(&tmp);
 }
-#endif
 
 template <typename TYPE>
 std::ostream &operator<<(std::ostream &os, const TwoInt<TYPE> a)
@@ -550,7 +519,7 @@ int main()
 			assert(a == *reinterpret_cast<uint64_t *>(&b));
 		}
 	}
-	if (1) {
+	if (0) {
 		typedef TwoInt<uint32_t> u64;
 		std::random_device rd;
 		std::default_random_engine engine(rd());
@@ -565,8 +534,8 @@ int main()
 	}
 	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(15), b(3);
 	//TwoInt<TwoInt<uint8_t>> a(15), b(3);
-	TwoInt<TwoInt<TwoInt<uint32_t>>> a(15), b(3);
-	//TwoInt<uint32_t> a(15), b(3);
+	//TwoInt<TwoInt<TwoInt<uint32_t>>> a(15), b(3);
+	TwoInt<uint32_t> a(15), b(3);
 	std::cout << "sizeof(a) = " << sizeof(a) << std::endl;
 	std::cout << (a + b) << " = " << a << " + " << b << std::endl;
 	std::cout << (a - b) << " = " << a << " - " << b << std::endl;
