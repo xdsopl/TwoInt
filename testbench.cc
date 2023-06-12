@@ -299,8 +299,8 @@ TwoInt<TYPE> operator/(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 	TwoInt<TYPE> quotient, one(1);
 	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
 		if ((dividend >> shift) >= divisor) {
-			quotient += one << shift;
 			dividend -= divisor << shift;
+			quotient |= one << shift;
 		}
 	}
 #endif
