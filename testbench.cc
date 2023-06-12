@@ -157,6 +157,8 @@ TwoInt<TYPE> operator^(TwoInt<TYPE> a, TwoInt<TYPE> b)
 template <typename TYPE>
 TwoInt<TYPE> operator>>(TwoInt<TYPE> a, int i)
 {
+	if (i == 0)
+		return a;
 	TwoInt<TYPE> tmp;
 	int h = sizeof(TYPE) * 8;
 	if (i < h) {
@@ -171,6 +173,8 @@ TwoInt<TYPE> operator>>(TwoInt<TYPE> a, int i)
 template <typename TYPE>
 TwoInt<TYPE> operator<<(TwoInt<TYPE> a, int i)
 {
+	if (i == 0)
+		return a;
 	TwoInt<TYPE> tmp;
 	int h = sizeof(TYPE) * 8;
 	if (i < h) {
