@@ -155,11 +155,12 @@ TwoInt<TYPE> operator>>(TwoInt<TYPE> a, int i)
 {
 	TwoInt<TYPE> tmp;
 	int h = sizeof(TYPE) * 8;
-	if (i > h)
-		tmp.lower = a.upper >> (i - h);
-	else
+	if (i < h) {
 		tmp.lower = (a.lower >> i) | (a.upper << (h - i));
-	tmp.upper = a.upper >> i;
+		tmp.upper = a.upper >> i;
+	} else if (i < 2 * h) {
+		tmp.lower = a.upper >> (i - h);
+	}
 	return tmp;
 }
 
@@ -167,12 +168,13 @@ template <typename TYPE>
 TwoInt<TYPE> operator<<(TwoInt<TYPE> a, int i)
 {
 	TwoInt<TYPE> tmp;
-	tmp.lower = a.lower << i;
 	int h = sizeof(TYPE) * 8;
-	if (i > h)
-		tmp.upper = a.lower << (i - h);
-	else
+	if (i < h) {
+		tmp.lower = a.lower << i;
 		tmp.upper = (a.upper << i) | (a.lower >> (h - i));
+	} else if (i < 2 * h) {
+		tmp.upper = a.lower << (i - h);
+	}
 	return tmp;
 }
 
@@ -450,9 +452,10 @@ int main()
 			assert(a == *reinterpret_cast<uint64_t *>(&b));
 		}
 	}
-	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(0), b(1);
+	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(2), b(3);
 	//TwoInt<TwoInt<uint8_t>> a(2), b(3);
-	TwoInt<uint32_t> a(2), b(3);
+	TwoInt<TwoInt<TwoInt<uint32_t>>> a(2), b(3);
+	//TwoInt<uint32_t> a(2), b(3);
 	std::cout << "sizeof(a) = " << sizeof(a) << std::endl;
 	std::cout << (a + b) << " = " << a << " + " << b << std::endl;
 	std::cout << (a - b) << " = " << a << " - " << b << std::endl;
