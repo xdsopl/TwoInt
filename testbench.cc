@@ -52,6 +52,10 @@ struct TwoInt
 	{
 		return *this = *this * a;
 	}
+	TwoInt<TYPE> operator/=(TwoInt<TYPE> a)
+	{
+		return *this = *this / a;
+	}
 	TwoInt<TYPE> operator++()
 	{
 		if (!++lower)
@@ -271,6 +275,70 @@ TwoInt<TwoInt<uint32_t>> mul(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 }
 
 template <typename TYPE>
+TwoInt<TYPE> operator/(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
+{
+	assert(divisor);
+#if 0
+	TwoInt<TYPE> quotient, bit(1);
+	while (divisor <= dividend) {
+		divisor <<= 1;
+		bit <<= 1;
+	}
+	divisor >>= 1;
+	bit >>= 1;
+	while (bit) {
+		if (dividend >= divisor) {
+			dividend -= divisor;
+			quotient |= bit;
+		}
+		divisor >>= 1;
+		bit >>= 1;
+	}
+#endif
+#if 1
+	TwoInt<TYPE> quotient, one(1);
+	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
+		if ((dividend >> shift) >= divisor) {
+			quotient += one << shift;
+			dividend -= divisor << shift;
+		}
+	}
+#endif
+#if 0
+	TwoInt<TYPE> quotient, remainder, one(1);
+	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
+		remainder <<= 1;
+		remainder |= (dividend >> shift) & one;
+		if (remainder >= divisor) {
+			remainder -= divisor;
+			quotient |= one << shift;
+		}
+	}
+#endif
+	return quotient;
+}
+
+#if 0
+TwoInt<uint8_t> operator/(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
+{
+	uint16_t tmp = *reinterpret_cast<uint16_t *>(&a) / *reinterpret_cast<uint16_t *>(&b);
+	return *reinterpret_cast<TwoInt<uint8_t> *>(&tmp);
+}
+
+TwoInt<uint16_t> operator/(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
+{
+	uint32_t tmp = *reinterpret_cast<uint32_t *>(&a) / *reinterpret_cast<uint32_t *>(&b);
+	return *reinterpret_cast<TwoInt<uint16_t> *>(&tmp);
+}
+
+TwoInt<uint32_t> operator/(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
+{
+	uint64_t tmp = *reinterpret_cast<uint64_t *>(&a) / *reinterpret_cast<uint64_t *>(&b);
+	return *reinterpret_cast<TwoInt<uint32_t> *>(&tmp);
+}
+#endif
+
+template <typename TYPE>
 std::ostream &operator<<(std::ostream &os, const TwoInt<TYPE> a)
 {
 	return os << a.upper << a.lower;
@@ -452,14 +520,28 @@ int main()
 			assert(a == *reinterpret_cast<uint64_t *>(&b));
 		}
 	}
-	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(2), b(3);
-	//TwoInt<TwoInt<uint8_t>> a(2), b(3);
-	TwoInt<TwoInt<TwoInt<uint32_t>>> a(2), b(3);
-	//TwoInt<uint32_t> a(2), b(3);
+	if (1) {
+		typedef TwoInt<uint32_t> u64;
+		std::random_device rd;
+		std::default_random_engine engine(rd());
+		std::uniform_int_distribution<uint64_t> distribution(1, std::numeric_limits<uint64_t>::max());
+		auto rand = std::bind(distribution, engine);
+		for (int i = 0; i < (1 << 20); ++i) {
+			uint64_t x = rand(), y = rand();
+			uint64_t a = x / y;
+			u64 b = u64(x) / u64(y);
+			assert(a == *reinterpret_cast<uint64_t *>(&b));
+		}
+	}
+	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(15), b(3);
+	//TwoInt<TwoInt<uint8_t>> a(15), b(3);
+	TwoInt<TwoInt<TwoInt<uint32_t>>> a(15), b(3);
+	//TwoInt<uint32_t> a(15), b(3);
 	std::cout << "sizeof(a) = " << sizeof(a) << std::endl;
 	std::cout << (a + b) << " = " << a << " + " << b << std::endl;
 	std::cout << (a - b) << " = " << a << " - " << b << std::endl;
 	std::cout << (a * b) << " = " << a << " * " << b << std::endl;
+	std::cout << (a / b) << " = " << a << " / " << b << std::endl;
 	return 0;
 }
 
