@@ -340,6 +340,25 @@ TwoInt<uint32_t> operator%(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 }
 
 template <typename TYPE>
+TwoInt<TwoInt<TYPE>> div(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
+{
+	assert(divisor);
+	TwoInt<TYPE> quotient, remainder, one(1);
+	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
+		remainder <<= 1;
+		remainder |= (dividend >> shift) & one;
+		if (remainder >= divisor) {
+			remainder -= divisor;
+			quotient |= one << shift;
+		}
+	}
+	TwoInt<TwoInt<TYPE>> tmp;
+	tmp.lower = quotient;
+	tmp.upper = remainder;
+	return tmp;
+}
+
+template <typename TYPE>
 std::ostream &operator<<(std::ostream &os, const TwoInt<TYPE> a)
 {
 	return os << a.upper << a.lower;

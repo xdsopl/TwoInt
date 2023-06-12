@@ -208,6 +208,21 @@ int main()
 			assert(a == *reinterpret_cast<uint64_t *>(&b));
 		}
 	}
+	if (0) {
+		typedef TwoInt<uint32_t> u64;
+		std::random_device rd;
+		std::default_random_engine engine(rd());
+		std::uniform_int_distribution<uint64_t> distribution(1, std::numeric_limits<uint64_t>::max());
+		auto rand = std::bind(distribution, engine);
+		for (int i = 0; i < (1 << 20); ++i) {
+			uint64_t x = rand(), y = rand();
+			uint64_t quotient = x / y;
+			uint64_t remainder = x % y;
+			TwoInt<u64> b = div(u64(x), u64(y));
+			assert(quotient == *reinterpret_cast<uint64_t *>(&(b.lower)));
+			assert(remainder == *reinterpret_cast<uint64_t *>(&(b.upper)));
+		}
+	}
 	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(15), b(3);
 	//TwoInt<TwoInt<uint8_t>> a(15), b(3);
 	//TwoInt<TwoInt<TwoInt<uint32_t>>> a(15), b(3);
