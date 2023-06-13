@@ -12,6 +12,36 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 #include <iomanip>
 #include "two_int.hh"
 
+template <typename TYPE>
+std::ostream &operator<<(std::ostream &os, const TwoInt<TYPE> a)
+{
+	return os << a.upper << a.lower;
+}
+
+template <>
+std::ostream &operator<<<uint8_t>(std::ostream &os, const TwoInt<uint8_t> a)
+{
+	return os << std::hex
+		<< std::setw(2) << std::setfill('0') << (unsigned)a.upper
+		<< std::setw(2) << std::setfill('0') << (unsigned)a.lower;
+}
+
+template <>
+std::ostream &operator<<<uint16_t>(std::ostream &os, const TwoInt<uint16_t> a)
+{
+	return os << std::hex
+		<< std::setw(4) << std::setfill('0') << a.upper
+		<< std::setw(4) << std::setfill('0') << a.lower;
+}
+
+template <>
+std::ostream &operator<<<uint32_t>(std::ostream &os, const TwoInt<uint32_t> a)
+{
+	return os << std::hex
+		<< std::setw(8) << std::setfill('0') << a.upper
+		<< std::setw(8) << std::setfill('0') << a.lower;
+}
+
 int main()
 {
 	if (0) {
