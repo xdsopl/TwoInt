@@ -33,6 +33,14 @@ struct TwoInt
 		else if (index < 2 * h)
 			upper.set(index - h);
 	}
+	void reset(int index)
+	{
+		int h = sizeof(TYPE) * 8;
+		if (index < h)
+			lower.reset(index);
+		else if (index < 2 * h)
+			upper.reset(index - h);
+	}
 	bool get(int index)
 	{
 		int h = sizeof(TYPE) * 8;
@@ -188,6 +196,33 @@ void TwoInt<uint32_t>::set(int index)
 		lower |= 1 << index;
 	else if (index < 64)
 		upper |= 1 << (index - 32);
+}
+
+template <>
+void TwoInt<uint8_t>::reset(int index)
+{
+	if (index < 8)
+		lower &= ~(1 << index);
+	else if (index < 16)
+		upper &= ~(1 << (index - 8));
+}
+
+template <>
+void TwoInt<uint16_t>::reset(int index)
+{
+	if (index < 16)
+		lower &= ~(1 << index);
+	else if (index < 32)
+		upper &= ~(1 << (index - 16));
+}
+
+template <>
+void TwoInt<uint32_t>::reset(int index)
+{
+	if (index < 32)
+		lower &= ~(1 << index);
+	else if (index < 64)
+		upper &= ~(1 << (index - 32));
 }
 
 template <>
