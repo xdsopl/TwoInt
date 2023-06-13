@@ -25,6 +25,27 @@ struct TwoInt
 		tmp.upper = TYPE::max();
 		return tmp;
 	}
+	void set(int index)
+	{
+		int h = sizeof(TYPE) * 8;
+		if (index < 0)
+			return;
+		else if (index < h)
+			lower.set(index);
+		else if (index < 2 * h)
+			upper.set(index - h);
+	}
+	bool get(int index)
+	{
+		int h = sizeof(TYPE) * 8;
+		if (index < 0)
+			return false;
+		if (index < h)
+			return lower.get(index);
+		if (index < 2 * h)
+			return upper.get(index - h);
+		return false;
+	}
 	explicit operator bool () const
 	{
 		return lower || upper;
@@ -144,6 +165,75 @@ TwoInt<uint32_t> TwoInt<uint32_t>::max()
 	tmp.lower = 4294967295;
 	tmp.upper = 4294967295;
 	return tmp;
+}
+
+template <>
+void TwoInt<uint8_t>::set(int index)
+{
+	if (index < 0)
+		return;
+	else if (index < 8)
+		lower |= 1 << index;
+	else if (index < 16)
+		upper |= 1 << (index - 8);
+}
+
+template <>
+void TwoInt<uint16_t>::set(int index)
+{
+	if (index < 0)
+		return;
+	else if (index < 16)
+		lower |= 1 << index;
+	else if (index < 32)
+		upper |= 1 << (index - 16);
+}
+
+template <>
+void TwoInt<uint32_t>::set(int index)
+{
+	if (index < 0)
+		return;
+	else if (index < 32)
+		lower |= 1 << index;
+	else if (index < 64)
+		upper |= 1 << (index - 32);
+}
+
+template <>
+bool TwoInt<uint8_t>::get(int index)
+{
+	if (index < 0)
+		return false;
+	if (index < 8)
+		return lower & (1 << index);
+	if (index < 16)
+		return upper & (1 << (index - 8));
+	return false;
+}
+
+template <>
+bool TwoInt<uint16_t>::get(int index)
+{
+	if (index < 0)
+		return false;
+	if (index < 16)
+		return lower & (1 << index);
+	if (index < 32)
+		return upper & (1 << (index - 16));
+	return false;
+}
+
+template <>
+bool TwoInt<uint32_t>::get(int index)
+{
+	if (index < 0)
+		return false;
+	if (index < 32)
+		return lower & (1 << index);
+	if (index < 64)
+		return upper & (1 << (index - 32));
+	return false;
 }
 
 template <typename TYPE>
@@ -346,11 +436,11 @@ template <typename TYPE>
 TwoInt<TYPE> operator/(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 {
 	assert(divisor);
-	TwoInt<TYPE> quotient, one(1);
-	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
+	TwoInt<TYPE> quotient;
+	for (int shift = sizeof(quotient) * 8 - 1; shift >= 0; --shift) {
 		if ((dividend >> shift) >= divisor) {
 			dividend -= divisor << shift;
-			quotient |= one << shift;
+			quotient.set(shift);
 		}
 	}
 	return quotient;
@@ -407,13 +497,14 @@ template <typename TYPE>
 TwoInt<TwoInt<TYPE>> div(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 {
 	assert(divisor);
-	TwoInt<TYPE> quotient, remainder, one(1);
-	for (int shift = sizeof(one) * 8 - 1; shift >= 0; --shift) {
+	TwoInt<TYPE> quotient, remainder;
+	for (int shift = sizeof(quotient) * 8 - 1; shift >= 0; --shift) {
 		remainder <<= 1;
-		remainder |= (dividend >> shift) & one;
+		if (dividend.get(shift))
+			remainder.set(0);
 		if (remainder >= divisor) {
 			remainder -= divisor;
-			quotient |= one << shift;
+			quotient.set(shift);
 		}
 	}
 	TwoInt<TwoInt<TYPE>> tmp;
