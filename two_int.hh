@@ -12,6 +12,19 @@ struct TwoInt
 	TYPE lower, upper;
 	TwoInt() : lower(0), upper(0) {}
 	TwoInt(uint64_t value) : lower(value), upper(8 <= sizeof(TYPE) ? 0 : value >> (sizeof(TYPE) * 8)) {}
+	static TwoInt<TYPE> one()
+	{
+		TwoInt<TYPE> tmp;
+		tmp.lower = TYPE::one();
+		return tmp;
+	}
+	static TwoInt<TYPE> max()
+	{
+		TwoInt<TYPE> tmp;
+		tmp.lower = TYPE::max();
+		tmp.upper = TYPE::max();
+		return tmp;
+	}
 	explicit operator bool () const
 	{
 		return lower || upper;
@@ -81,6 +94,57 @@ struct TwoInt
 		return tmp;
 	}
 };
+
+template <>
+TwoInt<uint8_t> TwoInt<uint8_t>::one()
+{
+	TwoInt<uint8_t> tmp;
+	tmp.lower = 1;
+	return tmp;
+}
+
+template <>
+TwoInt<uint16_t> TwoInt<uint16_t>::one()
+{
+	TwoInt<uint16_t> tmp;
+	tmp.lower = 1;
+	return tmp;
+}
+
+template <>
+TwoInt<uint32_t> TwoInt<uint32_t>::one()
+{
+	TwoInt<uint32_t> tmp;
+	tmp.lower = 1;
+	return tmp;
+}
+
+template <>
+TwoInt<uint8_t> TwoInt<uint8_t>::max()
+{
+	TwoInt<uint8_t> tmp;
+	tmp.lower = 255;
+	tmp.upper = 255;
+	return tmp;
+}
+
+template <>
+TwoInt<uint16_t> TwoInt<uint16_t>::max()
+{
+	TwoInt<uint16_t> tmp;
+	tmp.lower = 65535;
+	tmp.upper = 65535;
+	return tmp;
+}
+
+template <>
+TwoInt<uint32_t> TwoInt<uint32_t>::max()
+{
+	TwoInt<uint32_t> tmp;
+	tmp.lower = 4294967295;
+	tmp.upper = 4294967295;
+	return tmp;
+}
 
 template <typename TYPE>
 bool operator==(TwoInt<TYPE> a, TwoInt<TYPE> b)

@@ -228,6 +228,8 @@ int main()
 	//TwoInt<TwoInt<TwoInt<uint32_t>>> a(15), b(3);
 	TwoInt<uint32_t> a(15), b(3);
 	std::cout << "sizeof(a) = " << sizeof(a) << std::endl;
+	std::cout << "a.one() = " << a.one() << std::endl;
+	std::cout << "a.max() = " << a.max() << std::endl;
 	std::cout << (a + b) << " = " << a << " + " << b << std::endl;
 	std::cout << (a - b) << " = " << a << " - " << b << std::endl;
 	std::cout << (a * b) << " = " << a << " * " << b << std::endl;
