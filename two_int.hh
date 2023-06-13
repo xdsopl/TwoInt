@@ -28,9 +28,7 @@ struct TwoInt
 	void set(int index)
 	{
 		int h = sizeof(TYPE) * 8;
-		if (index < 0)
-			return;
-		else if (index < h)
+		if (index < h)
 			lower.set(index);
 		else if (index < 2 * h)
 			upper.set(index - h);
@@ -38,8 +36,6 @@ struct TwoInt
 	bool get(int index)
 	{
 		int h = sizeof(TYPE) * 8;
-		if (index < 0)
-			return false;
 		if (index < h)
 			return lower.get(index);
 		if (index < 2 * h)
@@ -170,9 +166,7 @@ TwoInt<uint32_t> TwoInt<uint32_t>::max()
 template <>
 void TwoInt<uint8_t>::set(int index)
 {
-	if (index < 0)
-		return;
-	else if (index < 8)
+	if (index < 8)
 		lower |= 1 << index;
 	else if (index < 16)
 		upper |= 1 << (index - 8);
@@ -181,9 +175,7 @@ void TwoInt<uint8_t>::set(int index)
 template <>
 void TwoInt<uint16_t>::set(int index)
 {
-	if (index < 0)
-		return;
-	else if (index < 16)
+	if (index < 16)
 		lower |= 1 << index;
 	else if (index < 32)
 		upper |= 1 << (index - 16);
@@ -192,9 +184,7 @@ void TwoInt<uint16_t>::set(int index)
 template <>
 void TwoInt<uint32_t>::set(int index)
 {
-	if (index < 0)
-		return;
-	else if (index < 32)
+	if (index < 32)
 		lower |= 1 << index;
 	else if (index < 64)
 		upper |= 1 << (index - 32);
@@ -203,8 +193,6 @@ void TwoInt<uint32_t>::set(int index)
 template <>
 bool TwoInt<uint8_t>::get(int index)
 {
-	if (index < 0)
-		return false;
 	if (index < 8)
 		return lower & (1 << index);
 	if (index < 16)
@@ -215,8 +203,6 @@ bool TwoInt<uint8_t>::get(int index)
 template <>
 bool TwoInt<uint16_t>::get(int index)
 {
-	if (index < 0)
-		return false;
 	if (index < 16)
 		return lower & (1 << index);
 	if (index < 32)
@@ -227,8 +213,6 @@ bool TwoInt<uint16_t>::get(int index)
 template <>
 bool TwoInt<uint32_t>::get(int index)
 {
-	if (index < 0)
-		return false;
 	if (index < 32)
 		return lower & (1 << index);
 	if (index < 64)
