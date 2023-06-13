@@ -532,3 +532,39 @@ TwoInt<TwoInt<TYPE>> div(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 	return tmp;
 }
 
+TwoInt<TwoInt<uint8_t>> div(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
+{
+	uint16_t x = *reinterpret_cast<uint16_t *>(&a);
+	uint16_t y = *reinterpret_cast<uint16_t *>(&b);
+	uint16_t q = x / y;
+	uint16_t r = x % y;
+	TwoInt<TwoInt<uint8_t>> tmp;
+	tmp.lower = *reinterpret_cast<TwoInt<uint8_t> *>(&q);
+	tmp.upper = *reinterpret_cast<TwoInt<uint8_t> *>(&r);
+	return tmp;
+}
+
+TwoInt<TwoInt<uint16_t>> div(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
+{
+	uint32_t x = *reinterpret_cast<uint32_t *>(&a);
+	uint32_t y = *reinterpret_cast<uint32_t *>(&b);
+	uint32_t q = x / y;
+	uint32_t r = x % y;
+	TwoInt<TwoInt<uint16_t>> tmp;
+	tmp.lower = *reinterpret_cast<TwoInt<uint16_t> *>(&q);
+	tmp.upper = *reinterpret_cast<TwoInt<uint16_t> *>(&r);
+	return tmp;
+}
+
+TwoInt<TwoInt<uint32_t>> div(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
+{
+	uint64_t x = *reinterpret_cast<uint64_t *>(&a);
+	uint64_t y = *reinterpret_cast<uint64_t *>(&b);
+	uint64_t q = x / y;
+	uint64_t r = x % y;
+	TwoInt<TwoInt<uint32_t>> tmp;
+	tmp.lower = *reinterpret_cast<TwoInt<uint32_t> *>(&q);
+	tmp.upper = *reinterpret_cast<TwoInt<uint32_t> *>(&r);
+	return tmp;
+}
+
