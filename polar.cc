@@ -60,12 +60,6 @@ struct PolarCodeConst0<double, ORDER>
 			prob[i] = pe;
 		}
 	}
-	int significant(int value) {
-		int msb = 0;
-		while (value >>= 1)
-			++msb;
-		return msb;
-	}
 	void operator()(int *sequence, int numerator = 1, int denominator = 2)
 	{
 		assert(numerator <= denominator);
