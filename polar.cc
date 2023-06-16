@@ -54,9 +54,10 @@ int main()
 	auto freeze = new PolarCodeConst0<TYPE, ORDER>();
 	auto sequence = new int[LENGTH];
 	(*freeze)(sequence, 3, 10);
+	std::cout << "static const int sequence[" << LENGTH << "] = { ";
 	for (int i = 0; i < LENGTH; ++i)
-		std::cout << " " << sequence[i];
-	std::cout << std::endl;
+		std::cout << sequence[i] << ", ";
+	std::cout << "};" << std::endl;
 	delete[] sequence;
 	delete freeze;
 	return 0;
