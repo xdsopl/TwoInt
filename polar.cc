@@ -17,8 +17,8 @@ struct PolarCodeConst0
 	void compute(TYPE pe, int i, int h)
 	{
 		if (h) {
-			compute((pe << 1) - mul(pe, pe).upper, i, h/2);
-			compute(mul(pe, pe).upper, i+h, h/2);
+			compute((pe << 1) - (mul(pe, pe) << 1).upper, i, h/2);
+			compute((mul(pe, pe) << 1).upper, i+h, h/2);
 		} else {
 			prob[i] = pe;
 		}
@@ -33,11 +33,10 @@ struct PolarCodeConst0
 	{
 		assert(numerator <= denominator);
 		int bits = sizeof(TYPE) * 8;
-		int shift = bits - 1 - significant(numerator);
-		TYPE erasure_probability = TYPE(numerator) << shift;
+		int shift = significant(numerator);
+		TYPE erasure_probability = TYPE(numerator) << bits - 1 - shift;
 		erasure_probability /= TYPE(denominator);
-		if (erasure_probability.get(bits - 1))
-			erasure_probability >>= 1;
+		erasure_probability <<= shift;
 		compute(erasure_probability, 0, LENGTH / 2);
 		for (int i = 0; i < LENGTH; ++i)
 			sequence[i] = i;
