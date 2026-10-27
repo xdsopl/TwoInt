@@ -5,6 +5,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 */
 
 #include <cassert>
+#include <limits>
 #include <iostream>
 #include <algorithm>
 #include "two_int.hh"
@@ -44,6 +45,10 @@ struct BhattacharyyaSequence
 	}
 };
 
+// erasure probabilities above one half are stored as their negated
+// complement, as values close to one would otherwise round to one.
+// squares are kept above zero, so the sign survives underflow and
+// doesn't depend on signed zeros, which -ffast-math ignores
 template <int ORDER>
 struct BhattacharyyaSequence<double, ORDER>
 {
@@ -53,8 +58,22 @@ struct BhattacharyyaSequence<double, ORDER>
 	void compute(TYPE pe, int i, int h)
 	{
 		if (h) {
-			compute(2.0 * pe - pe * pe, i, h/2);
-			compute(pe * pe, i+h, h/2);
+			// 2x - x^2 and x^2 work for both z and 1 - z
+			bool comp = pe < 0.0;
+			TYPE x = comp ? -pe : pe;
+			TYPE square = x * x;
+			if (square < std::numeric_limits<TYPE>::min())
+				square = std::numeric_limits<TYPE>::min();
+			TYPE grow = 2.0 * x - x * x;
+			bool flip = grow > 0.5;
+			if (flip)
+				grow = (1.0 - x) * (1.0 - x);
+			if (comp != flip)
+				grow = -grow;
+			if (comp)
+				square = -square;
+			compute(comp ? square : grow, i, h/2);
+			compute(comp ? grow : square, i+h, h/2);
 		} else {
 			prob[i] = pe;
 		}
@@ -62,12 +81,20 @@ struct BhattacharyyaSequence<double, ORDER>
 	void operator()(int *sequence, int numerator = 1, int denominator = 2)
 	{
 		assert(numerator <= denominator);
-		TYPE erasure_probability = TYPE(numerator);
+		bool comp = 2 * numerator > denominator;
+		TYPE erasure_probability = TYPE(comp ? denominator - numerator : numerator);
 		erasure_probability /= TYPE(denominator);
+		if (erasure_probability < std::numeric_limits<TYPE>::min())
+			erasure_probability = std::numeric_limits<TYPE>::min();
+		if (comp)
+			erasure_probability = -erasure_probability;
 		compute(erasure_probability, 0, LENGTH / 2);
 		for (int i = 0; i < LENGTH; ++i)
 			sequence[i] = i;
-		std::stable_sort(sequence, sequence+LENGTH, [this](int a, int b){ return prob[a] > prob[b]; });
+		std::stable_sort(sequence, sequence+LENGTH, [this](int a, int b){
+			bool na = prob[a] < 0.0, nb = prob[b] < 0.0;
+			return na != nb ? na : prob[a] > prob[b];
+		});
 	}
 };
 
