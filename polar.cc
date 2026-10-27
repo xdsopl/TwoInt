@@ -10,7 +10,7 @@ Copyright 2023 Ahmet Inan <xdsopl@gmail.com>
 #include "two_int.hh"
 
 template <typename TYPE, int ORDER>
-struct PolarCodeConst0
+struct BhattacharyyaSequence
 {
 	static const int LENGTH = 1 << ORDER;
 	TYPE prob[LENGTH];
@@ -45,7 +45,7 @@ struct PolarCodeConst0
 };
 
 template <int ORDER>
-struct PolarCodeConst0<double, ORDER>
+struct BhattacharyyaSequence<double, ORDER>
 {
 	typedef double TYPE;
 	static const int LENGTH = 1 << ORDER;
@@ -78,7 +78,7 @@ int main()
 	typedef TwoInt<TwoInt<TwoInt<TwoInt<TwoInt<TwoInt<TwoInt<uint32_t>>>>>>> TYPE;
 	//typedef double TYPE;
 	std::cerr << "type bits: " << sizeof(TYPE) * 8 << std::endl;
-	auto freeze = new PolarCodeConst0<TYPE, ORDER>();
+	auto freeze = new BhattacharyyaSequence<TYPE, ORDER>();
 	auto sequence = new int[LENGTH];
 	(*freeze)(sequence, 3, 10);
 	std::cout << "static const int sequence[" << LENGTH << "] = { ";
