@@ -410,11 +410,13 @@ TwoInt<uint32_t> operator*(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 template <typename TYPE>
 TwoInt<TwoInt<TYPE>> mul(TwoInt<TYPE> a, TwoInt<TYPE> b)
 {
-	TwoInt<TYPE> middle;
-	middle = mul(a.lower, b.upper) + mul(a.upper, b.lower);
+	TwoInt<TYPE> cross = mul(a.lower, b.upper);
+	TwoInt<TYPE> middle = cross + mul(a.upper, b.lower);
 	int h = sizeof(TYPE) * 8;
 	TwoInt<TYPE> lower = middle << h;
 	TwoInt<TYPE> upper = middle >> h;
+	if (middle < cross)
+		++upper.upper;
 	TwoInt<TwoInt<TYPE>> tmp;
 	tmp.lower = mul(a.lower, b.lower) + lower;
 	tmp.upper = mul(a.upper, b.upper) + upper;
@@ -440,9 +442,12 @@ TwoInt<TwoInt<uint16_t>> mul(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 template <>
 TwoInt<TwoInt<uint32_t>> mul(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 {
-	uint64_t middle = uint64_t(a.lower) * uint64_t(b.upper) + uint64_t(a.upper) * uint64_t(b.lower);
+	uint64_t cross = uint64_t(a.lower) * uint64_t(b.upper);
+	uint64_t middle = cross + uint64_t(a.upper) * uint64_t(b.lower);
 	uint64_t lower = uint64_t(a.lower) * uint64_t(b.lower) + (middle << 32);
 	uint64_t upper = uint64_t(a.upper) * uint64_t(b.upper) + (middle >> 32);
+	if (middle < cross)
+		upper += uint64_t(1) << 32;
 	if (lower < (middle << 32))
 		++upper;
 	TwoInt<TwoInt<uint32_t>> tmp;
