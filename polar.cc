@@ -40,7 +40,7 @@ struct BhattacharyyaSequence
 		compute(erasure_probability, 0, LENGTH / 2);
 		for (int i = 0; i < LENGTH; ++i)
 			sequence[i] = i;
-		std::sort(sequence, sequence+LENGTH, [this](int a, int b){ return prob[a] > prob[b]; });
+		std::stable_sort(sequence, sequence+LENGTH, [this](int a, int b){ return prob[a] > prob[b]; });
 	}
 };
 
@@ -67,7 +67,7 @@ struct BhattacharyyaSequence<double, ORDER>
 		compute(erasure_probability, 0, LENGTH / 2);
 		for (int i = 0; i < LENGTH; ++i)
 			sequence[i] = i;
-		std::sort(sequence, sequence+LENGTH, [this](int a, int b){ return prob[a] > prob[b]; });
+		std::stable_sort(sequence, sequence+LENGTH, [this](int a, int b){ return prob[a] > prob[b]; });
 	}
 };
 
