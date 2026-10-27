@@ -138,9 +138,30 @@ int main()
 	if (0) {
 		typedef TwoInt<TwoInt<uint8_t>> u32;
 		typedef TwoInt<u32> u64;
-		for (int i = 0; i < (1 << 17); ++i) {
-			for (int j = 0; j < (1 << 17); ++j) {
-				uint64_t a = uint64_t(i) * uint64_t(j);
+		for (uint64_t i = 0; i <= 1024U; ++i) {
+			for (uint64_t j = 0; j <= 1024U; ++j) {
+				uint64_t a = i * j;
+				u64 b = mul(u32(i), u32(j));
+				assert(a == *reinterpret_cast<uint64_t *>(&b));
+			}
+		}
+		for (uint64_t i = 4294966271U; i <= 4294967295U; ++i) {
+			for (uint64_t j = 0; j <= 1024U; ++j) {
+				uint64_t a = i * j;
+				u64 b = mul(u32(i), u32(j));
+				assert(a == *reinterpret_cast<uint64_t *>(&b));
+			}
+		}
+		for (uint64_t i = 0; i <= 1024U; ++i) {
+			for (uint64_t j = 4294966271U; j <= 4294967295U; ++j) {
+				uint64_t a = i * j;
+				u64 b = mul(u32(i), u32(j));
+				assert(a == *reinterpret_cast<uint64_t *>(&b));
+			}
+		}
+		for (uint64_t i = 4294966271U; i <= 4294967295U; ++i) {
+			for (uint64_t j = 4294966271U; j <= 4294967295U; ++j) {
+				uint64_t a = i * j;
 				u64 b = mul(u32(i), u32(j));
 				assert(a == *reinterpret_cast<uint64_t *>(&b));
 			}
