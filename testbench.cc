@@ -51,12 +51,12 @@ int main()
 		for (int i = 0; i < (1 << 20); ++i) {
 			++a;
 			++b;
-			assert(a == *reinterpret_cast<uint16_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 		for (int i = 0; i < (1 << 20); ++i) {
 			--a;
 			--b;
-			assert(a == *reinterpret_cast<uint16_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -86,14 +86,14 @@ int main()
 			for (int j = 0; j <= 16; ++j) {
 				uint16_t a = i >> j;
 				u16 b = u16(i) >> j;
-				assert(a == *reinterpret_cast<uint16_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 		for (int i = 0; i < 65536; ++i) {
 			for (int j = 0; j <= 16; ++j) {
 				uint16_t a = i << j;
 				u16 b = u16(i) << j;
-				assert(a == *reinterpret_cast<uint16_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 	}
@@ -103,14 +103,14 @@ int main()
 			for (int j = 0; j < 65536; ++j) {
 				uint16_t a = i + j;
 				u16 b = u16(i) + u16(j);
-				assert(a == *reinterpret_cast<uint16_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 		for (int i = 0; i < 65536; ++i) {
 			for (int j = 0; j < 65536; ++j) {
 				uint16_t a = i - j;
 				u16 b = u16(i) - u16(j);
-				assert(a == *reinterpret_cast<uint16_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 	}
@@ -120,7 +120,7 @@ int main()
 			for (int j = 0; j < 65536; ++j) {
 				uint16_t a = i * j;
 				u16 b = u16(i) * u16(j);
-				assert(a == *reinterpret_cast<uint16_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 	}
@@ -131,7 +131,7 @@ int main()
 			for (int j = 0; j < 65536; ++j) {
 				uint32_t a = i * j;
 				u32 b = mul(u16(i), u16(j));
-				assert(a == *reinterpret_cast<uint32_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 	}
@@ -142,28 +142,28 @@ int main()
 			for (uint64_t j = 0; j <= 1024U; ++j) {
 				uint64_t a = i * j;
 				u64 b = mul(u32(i), u32(j));
-				assert(a == *reinterpret_cast<uint64_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 		for (uint64_t i = 4294966271U; i <= 4294967295U; ++i) {
 			for (uint64_t j = 0; j <= 1024U; ++j) {
 				uint64_t a = i * j;
 				u64 b = mul(u32(i), u32(j));
-				assert(a == *reinterpret_cast<uint64_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 		for (uint64_t i = 0; i <= 1024U; ++i) {
 			for (uint64_t j = 4294966271U; j <= 4294967295U; ++j) {
 				uint64_t a = i * j;
 				u64 b = mul(u32(i), u32(j));
-				assert(a == *reinterpret_cast<uint64_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 		for (uint64_t i = 4294966271U; i <= 4294967295U; ++i) {
 			for (uint64_t j = 4294966271U; j <= 4294967295U; ++j) {
 				uint64_t a = i * j;
 				u64 b = mul(u32(i), u32(j));
-				assert(a == *reinterpret_cast<uint64_t *>(&b));
+				assert(a == to_uint64(b));
 			}
 		}
 	}
@@ -177,7 +177,7 @@ int main()
 			uint64_t x = rand(), y = rand();
 			uint64_t a = x + y;
 			u64 b = u64(x) + u64(y);
-			assert(a == *reinterpret_cast<uint64_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -190,7 +190,7 @@ int main()
 			uint64_t x = rand(), y = rand();
 			uint64_t a = x - y;
 			u64 b = u64(x) - u64(y);
-			assert(a == *reinterpret_cast<uint64_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -203,7 +203,7 @@ int main()
 			uint32_t x = rand(), y = rand();
 			uint32_t a = x * y;
 			u32 b = u32(x) * u32(y);
-			assert(a == *reinterpret_cast<uint32_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -217,7 +217,7 @@ int main()
 			uint64_t x = rand(), y = rand();
 			uint64_t a = x * y;
 			u64 b = mul(u32(x), u32(y));
-			assert(a == *reinterpret_cast<uint64_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -230,7 +230,7 @@ int main()
 			uint64_t x = rand(), y = rand();
 			uint64_t a = x * y;
 			u64 b = u64(x) * u64(y);
-			assert(a == *reinterpret_cast<uint64_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -243,7 +243,7 @@ int main()
 			uint64_t x = rand(), y = rand();
 			uint64_t a = x / y;
 			u64 b = u64(x) / u64(y);
-			assert(a == *reinterpret_cast<uint64_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -256,7 +256,7 @@ int main()
 			uint64_t x = rand(), y = rand();
 			uint64_t a = x % y;
 			u64 b = u64(x) % u64(y);
-			assert(a == *reinterpret_cast<uint64_t *>(&b));
+			assert(a == to_uint64(b));
 		}
 	}
 	if (0) {
@@ -270,8 +270,8 @@ int main()
 			uint64_t quotient = x / y;
 			uint64_t remainder = x % y;
 			TwoInt<u64> b = div(u64(x), u64(y));
-			assert(quotient == *reinterpret_cast<uint64_t *>(&(b.lower)));
-			assert(remainder == *reinterpret_cast<uint64_t *>(&(b.upper)));
+			assert(quotient == to_uint64(b.lower));
+			assert(remainder == to_uint64(b.upper));
 		}
 	}
 	//TwoInt<TwoInt<TwoInt<TwoInt<uint8_t>>>> a(15), b(3);

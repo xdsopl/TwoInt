@@ -255,6 +255,29 @@ bool TwoInt<uint32_t>::get(int index)
 	return false;
 }
 
+// value of a TwoInt of at most 64 bits, independent of byte order
+inline uint64_t to_uint64(uint8_t a)
+{
+	return a;
+}
+
+inline uint64_t to_uint64(uint16_t a)
+{
+	return a;
+}
+
+inline uint64_t to_uint64(uint32_t a)
+{
+	return a;
+}
+
+template <typename TYPE>
+uint64_t to_uint64(TwoInt<TYPE> a)
+{
+	static_assert(sizeof(a) <= sizeof(uint64_t), "TwoInt too wide for uint64_t");
+	return to_uint64(a.upper) << (sizeof(TYPE) * 8) | to_uint64(a.lower);
+}
+
 template <typename TYPE>
 bool operator==(TwoInt<TYPE> a, TwoInt<TYPE> b)
 {
@@ -391,20 +414,17 @@ TwoInt<TYPE> operator*(TwoInt<TYPE> a, TwoInt<TYPE> b)
 
 TwoInt<uint8_t> operator*(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
-	uint16_t tmp = *reinterpret_cast<uint16_t *>(&a) * *reinterpret_cast<uint16_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint8_t> *>(&tmp);
+	return TwoInt<uint8_t>(to_uint64(a) * to_uint64(b));
 }
 
 TwoInt<uint16_t> operator*(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 {
-	uint32_t tmp = *reinterpret_cast<uint32_t *>(&a) * *reinterpret_cast<uint32_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint16_t> *>(&tmp);
+	return TwoInt<uint16_t>(to_uint64(a) * to_uint64(b));
 }
 
 TwoInt<uint32_t> operator*(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 {
-	uint64_t tmp = *reinterpret_cast<uint64_t *>(&a) * *reinterpret_cast<uint64_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint32_t> *>(&tmp);
+	return TwoInt<uint32_t>(to_uint64(a) * to_uint64(b));
 }
 
 template <typename TYPE>
@@ -428,15 +448,13 @@ TwoInt<TwoInt<TYPE>> mul(TwoInt<TYPE> a, TwoInt<TYPE> b)
 template <>
 TwoInt<TwoInt<uint8_t>> mul(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
-	uint32_t tmp = uint32_t(*reinterpret_cast<uint16_t *>(&a)) * uint32_t(*reinterpret_cast<uint16_t *>(&b));
-	return *reinterpret_cast<TwoInt<TwoInt<uint8_t>> *>(&tmp);
+	return TwoInt<TwoInt<uint8_t>>(to_uint64(a) * to_uint64(b));
 }
 
 template <>
 TwoInt<TwoInt<uint16_t>> mul(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 {
-	uint64_t tmp = uint64_t(*reinterpret_cast<uint32_t *>(&a)) * uint64_t(*reinterpret_cast<uint32_t *>(&b));
-	return *reinterpret_cast<TwoInt<TwoInt<uint16_t>> *>(&tmp);
+	return TwoInt<TwoInt<uint16_t>>(to_uint64(a) * to_uint64(b));
 }
 
 template <>
@@ -451,8 +469,8 @@ TwoInt<TwoInt<uint32_t>> mul(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 	if (lower < (middle << 32))
 		++upper;
 	TwoInt<TwoInt<uint32_t>> tmp;
-	tmp.lower = *reinterpret_cast<TwoInt<uint32_t> *>(&lower);
-	tmp.upper = *reinterpret_cast<TwoInt<uint32_t> *>(&upper);
+	tmp.lower = TwoInt<uint32_t>(lower);
+	tmp.upper = TwoInt<uint32_t>(upper);
 	return tmp;
 }
 
@@ -472,20 +490,17 @@ TwoInt<TYPE> operator/(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 
 TwoInt<uint8_t> operator/(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
-	uint16_t tmp = *reinterpret_cast<uint16_t *>(&a) / *reinterpret_cast<uint16_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint8_t> *>(&tmp);
+	return TwoInt<uint8_t>(to_uint64(a) / to_uint64(b));
 }
 
 TwoInt<uint16_t> operator/(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 {
-	uint32_t tmp = *reinterpret_cast<uint32_t *>(&a) / *reinterpret_cast<uint32_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint16_t> *>(&tmp);
+	return TwoInt<uint16_t>(to_uint64(a) / to_uint64(b));
 }
 
 TwoInt<uint32_t> operator/(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 {
-	uint64_t tmp = *reinterpret_cast<uint64_t *>(&a) / *reinterpret_cast<uint64_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint32_t> *>(&tmp);
+	return TwoInt<uint32_t>(to_uint64(a) / to_uint64(b));
 }
 
 template <typename TYPE>
@@ -501,20 +516,17 @@ TwoInt<TYPE> operator%(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 
 TwoInt<uint8_t> operator%(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
-	uint16_t tmp = *reinterpret_cast<uint16_t *>(&a) % *reinterpret_cast<uint16_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint8_t> *>(&tmp);
+	return TwoInt<uint8_t>(to_uint64(a) % to_uint64(b));
 }
 
 TwoInt<uint16_t> operator%(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 {
-	uint32_t tmp = *reinterpret_cast<uint32_t *>(&a) % *reinterpret_cast<uint32_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint16_t> *>(&tmp);
+	return TwoInt<uint16_t>(to_uint64(a) % to_uint64(b));
 }
 
 TwoInt<uint32_t> operator%(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 {
-	uint64_t tmp = *reinterpret_cast<uint64_t *>(&a) % *reinterpret_cast<uint64_t *>(&b);
-	return *reinterpret_cast<TwoInt<uint32_t> *>(&tmp);
+	return TwoInt<uint32_t>(to_uint64(a) % to_uint64(b));
 }
 
 template <typename TYPE>
@@ -539,37 +551,37 @@ TwoInt<TwoInt<TYPE>> div(TwoInt<TYPE> dividend, TwoInt<TYPE> divisor)
 
 TwoInt<TwoInt<uint8_t>> div(TwoInt<uint8_t> a, TwoInt<uint8_t> b)
 {
-	uint16_t x = *reinterpret_cast<uint16_t *>(&a);
-	uint16_t y = *reinterpret_cast<uint16_t *>(&b);
+	uint16_t x = to_uint64(a);
+	uint16_t y = to_uint64(b);
 	uint16_t q = x / y;
 	uint16_t r = x % y;
 	TwoInt<TwoInt<uint8_t>> tmp;
-	tmp.lower = *reinterpret_cast<TwoInt<uint8_t> *>(&q);
-	tmp.upper = *reinterpret_cast<TwoInt<uint8_t> *>(&r);
+	tmp.lower = TwoInt<uint8_t>(q);
+	tmp.upper = TwoInt<uint8_t>(r);
 	return tmp;
 }
 
 TwoInt<TwoInt<uint16_t>> div(TwoInt<uint16_t> a, TwoInt<uint16_t> b)
 {
-	uint32_t x = *reinterpret_cast<uint32_t *>(&a);
-	uint32_t y = *reinterpret_cast<uint32_t *>(&b);
+	uint32_t x = to_uint64(a);
+	uint32_t y = to_uint64(b);
 	uint32_t q = x / y;
 	uint32_t r = x % y;
 	TwoInt<TwoInt<uint16_t>> tmp;
-	tmp.lower = *reinterpret_cast<TwoInt<uint16_t> *>(&q);
-	tmp.upper = *reinterpret_cast<TwoInt<uint16_t> *>(&r);
+	tmp.lower = TwoInt<uint16_t>(q);
+	tmp.upper = TwoInt<uint16_t>(r);
 	return tmp;
 }
 
 TwoInt<TwoInt<uint32_t>> div(TwoInt<uint32_t> a, TwoInt<uint32_t> b)
 {
-	uint64_t x = *reinterpret_cast<uint64_t *>(&a);
-	uint64_t y = *reinterpret_cast<uint64_t *>(&b);
+	uint64_t x = to_uint64(a);
+	uint64_t y = to_uint64(b);
 	uint64_t q = x / y;
 	uint64_t r = x % y;
 	TwoInt<TwoInt<uint32_t>> tmp;
-	tmp.lower = *reinterpret_cast<TwoInt<uint32_t> *>(&q);
-	tmp.upper = *reinterpret_cast<TwoInt<uint32_t> *>(&r);
+	tmp.lower = TwoInt<uint32_t>(q);
+	tmp.upper = TwoInt<uint32_t>(r);
 	return tmp;
 }
 
